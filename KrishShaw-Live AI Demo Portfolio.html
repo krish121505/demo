@@ -1,0 +1,816 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Krish Shaw — AI Solutions Demo</title>
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet"/>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --bg: #ffffff;
+      --bg2: #f5f5f5;
+      --bg3: #eeeeee;
+      --text: #111111;
+      --text2: #555555;
+      --text3: #888888;
+      --border: rgba(0,0,0,0.1);
+      --border2: rgba(0,0,0,0.2);
+      --blue: #1A56A0;
+      --blue-bg: #E8F0FA;
+      --blue-text: #1A56A0;
+      --green: #22c55e;
+      --red: #ef4444;
+      --radius: 12px;
+      --radius-sm: 8px;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #1a1a1a;
+        --bg2: #242424;
+        --bg3: #2e2e2e;
+        --text: #f0f0f0;
+        --text2: #aaaaaa;
+        --text3: #777777;
+        --border: rgba(255,255,255,0.1);
+        --border2: rgba(255,255,255,0.2);
+        --blue: #5b9bd5;
+        --blue-bg: #1a2d42;
+        --blue-text: #7ab3e0;
+      }
+    }
+
+    body {
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg3);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    .app {
+      max-width: 680px;
+      margin: 0 auto;
+      background: var(--bg);
+      min-height: 100vh;
+    }
+
+    /* HERO */
+    .hero {
+      background: var(--bg2);
+      border-bottom: 0.5px solid var(--border);
+      padding: 2rem 1.5rem 1.5rem;
+      text-align: center;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: var(--blue-bg);
+      color: var(--blue-text);
+      font-size: 11px;
+      font-weight: 500;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 0.75rem;
+    }
+
+    .hero h1 {
+      font-family: 'Syne', sans-serif;
+      font-size: 28px;
+      font-weight: 800;
+      color: var(--text);
+      margin-bottom: 0.4rem;
+    }
+
+    .hero h1 span { color: var(--blue); }
+
+    .hero p {
+      font-size: 14px;
+      color: var(--text2);
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+    }
+
+    .dev-card {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 8px 16px;
+      font-size: 13px;
+    }
+
+    .dev-avatar {
+      width: 32px; height: 32px;
+      border-radius: 50%;
+      background: var(--blue-bg);
+      color: var(--blue-text);
+      display: flex; align-items: center; justify-content: center;
+      font-weight: 600; font-size: 12px;
+      font-family: 'Syne', sans-serif;
+    }
+
+    .dev-info strong { display: block; font-weight: 500; font-size: 13px; color: var(--text); }
+    .dev-info span { font-size: 11px; color: var(--text2); }
+
+    /* TABS */
+    .tabs {
+      display: flex;
+      border-bottom: 0.5px solid var(--border);
+      background: var(--bg);
+      overflow-x: auto;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+
+    .tab {
+      flex: 1;
+      min-width: 80px;
+      padding: 14px 8px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text2);
+      background: none;
+      border: none;
+      border-bottom: 2px solid transparent;
+      cursor: pointer;
+      text-align: center;
+      font-family: 'DM Sans', sans-serif;
+      white-space: nowrap;
+      transition: all 0.2s;
+    }
+
+    .tab.active { color: var(--blue); border-bottom-color: var(--blue); }
+    .tab-icon { font-size: 16px; display: block; margin-bottom: 2px; }
+
+    /* PANELS */
+    .panel { display: none; padding: 1.25rem; }
+    .panel.active { display: block; }
+
+    /* CHAT */
+    .chat-window {
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      height: 400px;
+    }
+
+    .chat-header {
+      background: var(--bg);
+      border-bottom: 0.5px solid var(--border);
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .agent-dot {
+      width: 8px; height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.4} }
+
+    .chat-title { font-size: 13px; font-weight: 500; }
+    .chat-sub { font-size: 11px; color: var(--text2); margin-left: auto; }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .msg { display: flex; gap: 8px; align-items: flex-end; max-width: 85%; }
+    .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+
+    .msg-avatar {
+      width: 28px; height: 28px;
+      border-radius: 50%;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 11px; font-weight: 600;
+      flex-shrink: 0;
+    }
+
+    .msg-avatar.ai { background: var(--blue-bg); color: var(--blue-text); }
+    .msg-avatar.user { background: var(--bg3); color: var(--text2); border: 0.5px solid var(--border); }
+
+    .msg-bubble {
+      padding: 10px 14px;
+      border-radius: 16px;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .msg.ai .msg-bubble {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-bottom-left-radius: 4px;
+      color: var(--text);
+    }
+
+    .msg.user .msg-bubble {
+      background: var(--blue);
+      color: #ffffff;
+      border-bottom-right-radius: 4px;
+    }
+
+    .typing { display: flex; gap: 4px; padding: 4px 0; }
+    .typing span {
+      width: 6px; height: 6px;
+      border-radius: 50%;
+      background: var(--text2);
+      animation: bounce 1.2s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: 0.2s; }
+    .typing span:nth-child(3) { animation-delay: 0.4s; }
+    @keyframes bounce { 0%,60%,100%{transform:translateY(0)} 30%{transform:translateY(-6px)} }
+
+    .chat-input-row {
+      padding: 12px;
+      border-top: 0.5px solid var(--border);
+      background: var(--bg);
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .chat-input {
+      flex: 1;
+      border: 0.5px solid var(--border);
+      border-radius: 20px;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      background: var(--bg2);
+      color: var(--text);
+      outline: none;
+    }
+
+    .chat-input:focus { border-color: var(--blue); }
+
+    .send-btn {
+      width: 36px; height: 36px;
+      border-radius: 50%;
+      background: var(--blue);
+      border: none;
+      cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      color: white;
+      font-size: 14px;
+      transition: opacity 0.2s;
+    }
+    .send-btn:hover { opacity: 0.85; }
+
+    .quick-btns {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      margin-bottom: 12px;
+    }
+
+    .qbtn {
+      font-size: 11px;
+      padding: 5px 10px;
+      border-radius: 20px;
+      border: 0.5px solid var(--border);
+      background: var(--bg);
+      color: var(--text2);
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: all 0.15s;
+    }
+    .qbtn:hover { border-color: var(--blue); color: var(--blue); }
+
+    /* VOICE */
+    .voice-demo {
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    .voice-ring {
+      width: 80px; height: 80px;
+      border-radius: 50%;
+      background: var(--blue-bg);
+      margin: 0 auto 1rem;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 32px;
+      position: relative;
+    }
+
+    .voice-ring.active::before {
+      content: '';
+      position: absolute;
+      width: 100%; height: 100%;
+      border-radius: 50%;
+      border: 2px solid var(--blue);
+      animation: ring 1.5s infinite;
+    }
+
+    @keyframes ring { 0%{transform:scale(1);opacity:1} 100%{transform:scale(1.6);opacity:0} }
+
+    .call-btn {
+      background: var(--green);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 10px 24px;
+      font-size: 13px;
+      font-weight: 500;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      margin: 0 4px;
+      transition: opacity 0.2s;
+    }
+    .call-btn:hover { opacity: 0.85; }
+    .call-btn.red { background: var(--red); }
+
+    .ivr-options {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-top: 1rem;
+    }
+
+    .ivr-opt {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      text-align: left;
+      cursor: pointer;
+      font-family: 'DM Sans', sans-serif;
+      transition: border-color 0.15s;
+    }
+    .ivr-opt:hover { border-color: var(--blue); }
+    .ivr-opt .num { font-size: 20px; font-weight: 800; font-family: 'Syne', sans-serif; color: var(--blue); display: block; }
+    .ivr-opt .label { font-size: 12px; color: var(--text2); }
+
+    .ivr-result {
+      display: none;
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      margin-top: 12px;
+    }
+
+    /* GMAIL */
+    .gmail-compose {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+
+    .gmail-top {
+      background: var(--bg2);
+      padding: 12px 16px;
+      border-bottom: 0.5px solid var(--border);
+      font-size: 13px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      color: var(--text);
+    }
+
+    .gmail-field {
+      padding: 10px 16px;
+      border-bottom: 0.5px solid var(--border);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text);
+    }
+
+    .gmail-field-label { color: var(--text2); min-width: 60px; font-size: 12px; }
+
+    .gmail-subject-input {
+      border: none;
+      outline: none;
+      background: transparent;
+      font-family: 'DM Sans', sans-serif;
+      font-size: 13px;
+      flex: 1;
+      color: var(--text);
+    }
+
+    .gmail-textarea {
+      width: 100%;
+      border: none;
+      outline: none;
+      padding: 12px 16px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      background: transparent;
+      color: var(--text);
+      resize: none;
+      min-height: 120px;
+    }
+
+    .gmail-footer {
+      padding: 10px 16px;
+      border-top: 0.5px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .send-gmail-btn {
+      background: var(--blue);
+      color: white;
+      border: none;
+      border-radius: 20px;
+      padding: 8px 20px;
+      font-size: 13px;
+      font-family: 'DM Sans', sans-serif;
+      cursor: pointer;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+    .send-gmail-btn:hover { opacity: 0.85; }
+
+    .recipient-count {
+      font-size: 12px;
+      color: var(--text2);
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .success-toast {
+      background: #dcfce7;
+      color: #166534;
+      border-radius: var(--radius-sm);
+      padding: 10px 16px;
+      font-size: 13px;
+      text-align: center;
+      margin-top: 10px;
+      display: none;
+    }
+
+    /* ABOUT */
+    .about-section { display: flex; flex-direction: column; gap: 14px; }
+
+    .about-card {
+      background: var(--bg);
+      border: 0.5px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+    }
+
+    .section-title {
+      font-family: 'Syne', sans-serif;
+      font-size: 11px;
+      font-weight: 700;
+      color: var(--text2);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 0.75rem;
+    }
+
+    .skill-grid { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 0.75rem; }
+
+    .skill-pill {
+      font-size: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      background: var(--bg2);
+      border: 0.5px solid var(--border);
+      color: var(--text2);
+      font-weight: 500;
+    }
+
+    .contact-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      padding: 8px 0;
+      border-bottom: 0.5px solid var(--border);
+      color: var(--text);
+    }
+    .contact-row:last-child { border-bottom: none; }
+    .contact-label { color: var(--text2); font-size: 12px; min-width: 70px; }
+
+    .status-badge {
+      display: inline-block;
+      font-size: 10px;
+      font-weight: 500;
+      padding: 3px 8px;
+      border-radius: 20px;
+    }
+    .badge-blue { background: var(--blue-bg); color: var(--blue-text); }
+    .badge-green { background: #dcfce7; color: #166534; }
+
+    .service-row {
+      padding: 8px 0;
+      border-bottom: 0.5px solid var(--border);
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--text);
+    }
+    .service-row:last-child { border-bottom: none; }
+
+    p.hint {
+      font-size: 12px;
+      color: var(--text2);
+      margin-bottom: 10px;
+    }
+  </style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">Live Demo — AI Solutions Portfolio</div>
+    <h1>Built by <span>Krish Shaw</span></h1>
+    <p>AI Developer · Full Stack · Automation Engineer<br>BTech CSE (AI) · Kolkata, India</p>
+    <div class="dev-card">
+      <div class="dev-avatar">KS</div>
+      <div class="dev-info">
+        <strong>Krish Shaw</strong>
+        <span>krishshaw2005@gmail.com · +91 9674020528</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab active" onclick="switchTab('chatbot')"><span class="tab-icon">💬</span>AI Chatbot</button>
+    <button class="tab" onclick="switchTab('voice')"><span class="tab-icon">📞</span>Voice Agent</button>
+    <button class="tab" onclick="switchTab('gmail')"><span class="tab-icon">📧</span>Gmail Auto</button>
+    <button class="tab" onclick="switchTab('about')"><span class="tab-icon">👤</span>About Me</button>
+  </div>
+
+  <!-- CHATBOT -->
+  <div class="panel active" id="tab-chatbot">
+    <p class="hint">WhatsApp-style AI chatbot — try it live below</p>
+    <div class="quick-btns">
+      <button class="qbtn" onclick="quickSend('What services do you offer?')">What services do you offer?</button>
+      <button class="qbtn" onclick="quickSend('I need support')">I need support</button>
+      <button class="qbtn" onclick="quickSend('Talk to a human agent')">Talk to human</button>
+      <button class="qbtn" onclick="quickSend('What are your timings?')">Timings?</button>
+    </div>
+    <div class="chat-window">
+      <div class="chat-header">
+        <div class="agent-dot"></div>
+        <span class="chat-title">AI Support Agent</span>
+        <span class="chat-sub">Online · Powered by Claude AI</span>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="msg ai">
+          <div class="msg-avatar ai">AI</div>
+          <div class="msg-bubble">Hello! Welcome. I'm your AI assistant. How can I help you today?</div>
+        </div>
+      </div>
+      <div class="chat-input-row">
+        <input class="chat-input" id="chatInput" type="text" placeholder="Type a message..." onkeydown="if(event.key==='Enter') sendMessage()"/>
+        <button class="send-btn" onclick="sendMessage()">➤</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VOICE -->
+  <div class="panel" id="tab-voice">
+    <p class="hint">Simulated AI phone call — see how the voice agent handles customer calls</p>
+    <div class="voice-demo">
+      <div class="voice-ring" id="voiceRing">📞</div>
+      <p style="font-size:14px;font-weight:500;margin-bottom:4px;" id="voiceStatus">Ready to answer calls</p>
+      <p style="font-size:12px;color:var(--text2);margin-bottom:1rem;" id="voiceSub">Click below to simulate an incoming call</p>
+      <button class="call-btn" id="callBtn" onclick="startCall()">Simulate Incoming Call</button>
+    </div>
+    <div id="ivrPanel" style="display:none;">
+      <p style="font-size:13px;color:var(--text2);margin-bottom:8px;">AI Agent says: <em>"Please select an option to continue..."</em></p>
+      <div class="ivr-options">
+        <button class="ivr-opt" onclick="selectIVR('billing')"><span class="num">1</span><span class="label">Billing &amp; Payments</span></button>
+        <button class="ivr-opt" onclick="selectIVR('technical')"><span class="num">2</span><span class="label">Technical Support</span></button>
+        <button class="ivr-opt" onclick="selectIVR('orders')"><span class="num">3</span><span class="label">Orders &amp; Delivery</span></button>
+        <button class="ivr-opt" onclick="selectIVR('human')"><span class="num">0</span><span class="label">Talk to Human</span></button>
+      </div>
+    </div>
+    <div class="ivr-result" id="ivrResult">
+      <p id="ivrResultText" style="font-size:13px;line-height:1.6;color:var(--text);"></p>
+      <button class="call-btn red" style="margin-top:12px;" onclick="resetCall()">End Call</button>
+    </div>
+  </div>
+
+  <!-- GMAIL -->
+  <div class="panel" id="tab-gmail">
+    <p class="hint">Gmail bulk automation — type a message and send to all customers at once</p>
+    <div class="gmail-compose">
+      <div class="gmail-top">
+        <span>New Bulk Email</span>
+        <span style="font-size:12px;color:var(--text2);">Gmail Automation</span>
+      </div>
+      <div class="gmail-field">
+        <span class="gmail-field-label">From</span>
+        <span>business@yourdomain.com</span>
+      </div>
+      <div class="gmail-field">
+        <span class="gmail-field-label">To</span>
+        <span style="color:var(--blue);">customer-list.csv</span>
+        <span style="margin-left:auto;font-size:11px;background:var(--blue-bg);color:var(--blue-text);padding:2px 8px;border-radius:20px;">150 recipients</span>
+      </div>
+      <div class="gmail-field">
+        <span class="gmail-field-label">Subject</span>
+        <input class="gmail-subject-input" id="emailSubject" placeholder="Enter subject..." value="Special Offer for Our Valued Customers"/>
+      </div>
+      <textarea class="gmail-textarea" id="emailBody">Dear Customer,
+
+We have an exciting offer just for you! Visit us today and enjoy exclusive discounts.
+
+Looking forward to seeing you!
+
+Best regards,
+Your Business Team</textarea>
+      <div class="gmail-footer">
+        <div class="recipient-count">
+          <span style="width:8px;height:8px;border-radius:50%;background:var(--green);display:inline-block;"></span>
+          Ready to send to 150 people
+        </div>
+        <button class="send-gmail-btn" onclick="sendBulkEmail()">Send to All ➤</button>
+      </div>
+    </div>
+    <div class="success-toast" id="emailToast">✅ Email sent successfully to 150 recipients!</div>
+  </div>
+
+  <!-- ABOUT -->
+  <div class="panel" id="tab-about">
+    <div class="about-section">
+      <div class="about-card">
+        <div style="display:flex;align-items:center;gap:12px;margin-bottom:1rem;">
+          <div style="width:52px;height:52px;border-radius:50%;background:var(--blue-bg);color:var(--blue-text);display:flex;align-items:center;justify-content:center;font-family:'Syne',sans-serif;font-size:18px;font-weight:800;">KS</div>
+          <div>
+            <p style="font-family:'Syne',sans-serif;font-size:17px;font-weight:800;color:var(--text);">Krish Shaw</p>
+            <p style="font-size:12px;color:var(--text2);">AI Developer · Kolkata, India · Age 20</p>
+          </div>
+        </div>
+        <p style="font-size:13px;color:var(--text2);line-height:1.6;">BTech CSE student specializing in AI, passionate about building real-world automation and AI systems. Currently developing a personal JARVIS-style AI assistant and business automation tools.</p>
+      </div>
+
+      <div class="about-card">
+        <div class="section-title">Technical Skills</div>
+        <div class="skill-grid">
+          <span class="skill-pill">Python</span>
+          <span class="skill-pill">JavaScript</span>
+          <span class="skill-pill">Java</span>
+          <span class="skill-pill">Claude AI</span>
+          <span class="skill-pill">FastAPI</span>
+          <span class="skill-pill">React</span>
+          <span class="skill-pill">WhatsApp API</span>
+          <span class="skill-pill">Gmail API</span>
+          <span class="skill-pill">Twilio</span>
+          <span class="skill-pill">Google Sheets API</span>
+          <span class="skill-pill">AI Chatbots</span>
+          <span class="skill-pill">Voice Agents</span>
+          <span class="skill-pill">Automation</span>
+        </div>
+      </div>
+
+      <div class="about-card">
+        <div class="section-title">What I Can Build For You</div>
+        <div class="service-row"><span>AI Voice Agent (Phone IVR)</span><span class="status-badge badge-blue">Ready to build</span></div>
+        <div class="service-row"><span>WhatsApp AI Chatbot</span><span class="status-badge badge-blue">Ready to build</span></div>
+        <div class="service-row"><span>Gmail Bulk Automation</span><span class="status-badge badge-green">Demo live above</span></div>
+      </div>
+
+      <div class="about-card">
+        <div class="section-title">Contact</div>
+        <div class="contact-row"><span class="contact-label">Phone</span><span>+91 9674020528</span></div>
+        <div class="contact-row"><span class="contact-label">Email</span><span>krishshaw2005@gmail.com</span></div>
+        <div class="contact-row"><span class="contact-label">Location</span><span>Kolkata, West Bengal</span></div>
+        <div class="contact-row"><span class="contact-label">Education</span><span>BTech CSE (AI) — Pursuing</span></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+  function switchTab(name) {
+    const names = ['chatbot','voice','gmail','about'];
+    document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', names[i] === name));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    document.getElementById('tab-' + name).classList.add('active');
+  }
+
+  const chatHistory = [];
+
+  async function sendMessage() {
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    addMessage('user', text);
+    chatHistory.push({ role: 'user', content: text });
+    const typingEl = addTyping();
+    try {
+      const res = await fetch('https://api.anthropic.com/v1/messages', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: 'You are a friendly AI customer support agent for a business. Help customers with queries about services, billing, orders, and support. Keep responses concise (2-3 sentences max). If user wants to talk to a human, say you will transfer them now.',
+          messages: chatHistory
+        })
+      });
+      const data = await res.json();
+      const reply = data.content?.[0]?.text || "I'm here to help! Could you please rephrase that?";
+      typingEl.remove();
+      addMessage('ai', reply);
+      chatHistory.push({ role: 'assistant', content: reply });
+    } catch(e) {
+      typingEl.remove();
+      addMessage('ai', "Having a moment — please try again shortly!");
+    }
+  }
+
+  function quickSend(text) {
+    document.getElementById('chatInput').value = text;
+    sendMessage();
+  }
+
+  function addMessage(role, text) {
+    const msgs = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg ' + role;
+    div.innerHTML = `<div class="msg-avatar ${role}">${role==='ai'?'AI':'You'}</div><div class="msg-bubble">${text}</div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
+  }
+
+  function addTyping() {
+    const msgs = document.getElementById('chatMessages');
+    const div = document.createElement('div');
+    div.className = 'msg ai';
+    div.innerHTML = `<div class="msg-avatar ai">AI</div><div class="msg-bubble"><div class="typing"><span></span><span></span><span></span></div></div>`;
+    msgs.appendChild(div);
+    msgs.scrollTop = msgs.scrollHeight;
+    return div;
+  }
+
+  function startCall() {
+    document.getElementById('voiceRing').classList.add('active');
+    document.getElementById('voiceRing').textContent = '🎙️';
+    document.getElementById('voiceStatus').textContent = 'Call Connected';
+    document.getElementById('voiceSub').textContent = 'AI Agent is speaking...';
+    document.getElementById('callBtn').style.display = 'none';
+    setTimeout(() => { document.getElementById('ivrPanel').style.display = 'block'; }, 1200);
+  }
+
+  const ivrResponses = {
+    billing: '🤖 AI Agent: "For billing, your account shows no outstanding balance. Your last payment of ₹2,500 was received on April 1st. Is there anything else I can help you with?"',
+    technical: '🤖 AI Agent: "I can see your account. For technical support, I\'ll run a quick diagnostic. Could you describe the issue you\'re facing?"',
+    orders: '🤖 AI Agent: "Your last order #ORD-4821 is out for delivery and should arrive today between 2–6 PM. Would you like SMS updates?"',
+    human: '🤖 AI Agent: "Of course! Transferring you to a live agent right now. Please hold — estimated wait time is 2 minutes."'
+  };
+
+  function selectIVR(option) {
+    document.getElementById('ivrPanel').style.display = 'none';
+    document.getElementById('ivrResultText').textContent = ivrResponses[option];
+    document.getElementById('ivrResult').style.display = 'block';
+  }
+
+  function resetCall() {
+    document.getElementById('voiceRing').classList.remove('active');
+    document.getElementById('voiceRing').textContent = '📞';
+    document.getElementById('voiceStatus').textContent = 'Ready to answer calls';
+    document.getElementById('voiceSub').textContent = 'Click below to simulate an incoming call';
+    document.getElementById('callBtn').style.display = 'inline-block';
+    document.getElementById('ivrPanel').style.display = 'none';
+    document.getElementById('ivrResult').style.display = 'none';
+  }
+
+  function sendBulkEmail() {
+    const toast = document.getElementById('emailToast');
+    toast.style.display = 'block';
+    setTimeout(() => { toast.style.display = 'none'; }, 3000);
+  }
+</script>
+</body>
+</html>
